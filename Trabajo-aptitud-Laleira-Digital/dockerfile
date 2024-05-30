@@ -1,0 +1,26 @@
+# Versión de python
+FROM python:3.10
+
+# Instalamos poetry si la persona no lo tuviese
+RUN pip install poetry
+
+# Directorio de el contenedor
+WORKDIR /app
+
+# Copia los archivos de configuración de poetry y el archivo de lock
+COPY pyproject.toml poetry.lock /app/
+
+# Instala las dependencias 
+RUN poetry install --no-root
+
+# Copia el resto del código fuente de tu servicio al directorio de trabajo en el contenedor
+COPY . /app
+
+# Con Black Formateamos el código
+RUN poetry run black .
+
+# Puerto de el servicio
+EXPOSE 8080
+
+# Comando para ejecutar tu servicio cuando se inicie el contenedor
+CMD ["poetry", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8080"]
